@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamscapes Goods | Wear the Void</title>
+    <meta name="description" content="Premium garments inspired by cryptozoology, mythology, and the void. Designed in Sweden, printed in the USA. Shop tees, crewnecks, hoodies & caps.">
+    <meta property="og:title" content="Dreamscapes Goods | Wear the Void">
+    <meta property="og:description" content="Garments for the mythically inclined. From Sweden to the USA.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dreamscapesgoods.com">
+    <meta property="og:image" content="https://pfy-prod-products-mockup-media.s3.us-east-2.amazonaws.com/files/2026/03/20260323200012-1f126f2e-72e8-6ad0-95c5-2ee04771bb22.png?revision=1774445502450&s=1024">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --void-black: #050505;
+            --starlight: #ffffff;
+            --gold-accent: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.3);
+            --deep-navy: #0a0a12;
+            --font-main: 'Montserrat', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--void-black);
+            color: var(--starlight);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        /* --- STICKY NAV --- */
+        .site-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 40px;
+            transition: background 0.4s ease, padding 0.4s ease, border-color 0.4s ease;
+            border-bottom: 1px solid transparent;
+        }
+
+        .site-nav.scrolled {
+            background: rgba(5, 5, 5, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 14px 40px;
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .nav-logo {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--starlight);
+            opacity: 0.9;
+        }
+
+        .nav-shop {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold-accent);
+            padding: 8px 20px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .nav-shop:hover {
+            background: var(--gold-accent);
+            color: var(--void-black);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+
+        /* --- CANVAS STARFIELD (BACKGROUND LAYER) --- */
+        #starfield-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            /* Behind all content */
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        /* --- SCROLL REVEAL --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- HERO SECTION --- */
+        #hero-section {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            opacity: 1;
+            will-change: transform, opacity;
+        }
+
+        /* Soft fade at the bottom of the hero — no hard cut */
+        #hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(to bottom, transparent, #050505);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .spline-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            transition: transform 0.1s linear, opacity 0.1s linear;
+        }
+
+        .spline-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* --- HERO SCROLL INDICATOR --- */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+            animation: fadeInUp 1.5s ease 1s both;
+        }
+
+        .scroll-indicator span {
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .scroll-arrow {
+            width: 1px;
+            height: 30px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
+            animation: scrollBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollBounce {
+            0%, 100% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(10px); opacity: 0.3; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .hero-logo {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            background: linear-gradient(to right, #fff, #ddd, #fff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            /* Fix lint */
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-tagline {
+            font-size: 1.2rem;
+            color: #aaa;
+            letter-spacing: 8px;
+            margin-bottom: 4rem;
+            text-transform: uppercase;
+        }
+
+        /* --- CTA BUTTON --- */
+        .btn-warp {
+            display: inline-block;
+            padding: 20px 60px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: var(--void-black);
+            background: var(--starlight);
+            border: 1px solid var(--starlight);
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .btn-warp:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gold-accent);
+            transition: left 0.4s ease;
+            z-index: -1;
+        }
+
+        .btn-warp:hover {
+            color: var(--starlight);
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-warp:hover:before {
+            left: 0;
+        }
+
+        .shipping-text {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--gold-accent);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        /* --- CONTENT SECTIONS --- */
+        section {
+            position: relative;
+            padding: 120px 20px;
+            z-index: 2;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 4rem;
+            color: var(--gold-accent);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            font-weight: 300;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 1px;
+            background: var(--gold-accent);
+            margin: 1.2rem auto 0;
+            opacity: 0.6;
+        }
+
+        /* --- GRID SHOWCASE --- */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .art-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            padding: 20px;
+            transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.45s ease, border-color 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Shimmer sweep on hover */
+        .art-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+            transition: left 0.7s ease;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .art-card:hover::after {
+            left: 160%;
+        }
+
+        .art-card:hover {
+            transform: translateY(-8px) scale(1.015);
+            border-color: rgba(212, 175, 55, 0.5);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(212, 175, 55, 0.12);
+        }
+
+        /* NEW badge */
+        .art-card[data-badge]::before {
+            content: attr(data-badge);
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            background: var(--gold-accent);
+            color: var(--void-black);
+            font-weight: 700;
+            z-index: 3;
+            border-radius: 2px;
+        }
+
+        .art-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-bottom: 20px;
+            border: 1px solid #222;
+            border-radius: 2px;
+            transition: transform 0.5s ease, border-color 0.3s ease;
+        }
+
+        .art-card:hover .art-image {
+            transform: scale(1.05);
+            border-color: var(--gold-accent);
+        }
+
+        .art-title {
+            font-size: 1rem;
+            color: #ddd;
+            letter-spacing: 2px;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+
+        /* --- INTRO BAR --- */
+        .intro-bar {
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .intro-text {
+            font-size: 1.05rem;
+            color: #888;
+            letter-spacing: 1px;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* --- BRAND STORY --- */
+        .story-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            line-height: 2;
+            font-size: 1.1rem;
+            color: #ccc;
+            font-weight: 300;
+            /* Readability Fix */
+            background: rgba(5, 5, 5, 0.85);
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            border-radius: 4px;
+        }
+
+        .highlight {
+            color: var(--gold-accent);
+            font-weight: 600;
+        }
+
+        .art-price {
+            font-size: 0.95rem;
+            color: var(--gold-accent);
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            padding: 80px 20px;
+            text-align: center;
+            border-top: 1px solid #111;
+            background: #000;
+            z-index: 2;
+            position: relative;
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #555;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--gold-accent);
+            display: inline-block;
+            transform: rotate(45deg);
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            #hero-section {
+                height: 100svh;
+            }
+
+            .spline-container {
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                overflow: hidden;
+            }
+
+            .spline-container iframe {
+                pointer-events: none;
+                position: absolute;
+                width: 300%;
+                height: 200%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0.5);
+                transform-origin: center center;
+            }
+
+            .site-nav {
+                padding: 16px 20px;
+            }
+
+            .site-nav.scrolled {
+                padding: 12px 20px;
+            }
+
+            .nav-logo {
+                font-size: 0.7rem;
+                letter-spacing: 3px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .art-card {
+                height: auto;
+            }
+
+            .scroll-indicator {
+                bottom: 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="site-nav" id="site-nav">
+        <a href="#" class="nav-logo">Dreamscapes</a>
+        <a href="https://shop.dreamscapesgoods.com" class="nav-shop" target="_blank" rel="noopener">Shop</a>
+    </nav>
+
+    <!-- STARFIELD CANVAS -->
+    <canvas id="starfield-canvas"></canvas>
+
+    <!-- HERO -->
+    <div id="hero-section">
+        <div class="spline-container" id="spline-container">
+            <iframe src="https://my.spline.design/hellodistortingintrocopy-At6HLDlDPHdz7xXuABEnjKEm/" frameborder="0"
+                width="100%" height="100%" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-arrow"></div>
+        </div>
+    </div>
+
+    <!-- INTRO -->
+    <section class="intro-bar">
+        <p class="intro-text reveal">Garments for the mythically inclined — from ancient folklore to modern streetwear.</p>
+    </section>
+
+    <!-- BRAND STORY -->
+    <section id="story">
+        <h2 class="section-title reveal">Origin</h2>
+        <div class="story-container reveal">
+            <p>
+                From the quiet winters of <span class="highlight">Sweden</span> to the streets of the <span
+                    class="highlight">USA</span>.
+                Dreamscapes Goods explores the boundary between ancient myth and modern form.
+                <br><br>
+                We value craft over hype. Every piece is printed on demand by premium US providers, ensuring quality
+                that endures the ritual of daily wear.
+            </p>
+        </div>
+    </section>
+
+    <!-- SHOWCASE -->
+    <section id="showcase">
+        <h2 class="section-title reveal">The Collection</h2>
+        <div class="showcase-grid">
+            <a href="https://shop.dreamscapesgoods.com/product/27958429/us-stay-loose-shaka-embroidered-dad-cap" class="art-card reveal" target="_blank" rel="noopener" data-badge="NEW">
+                <div class="art-image" style="background-image: url('https://pfy-prod-products-mockup-media.s3.us-east-2.amazonaws.com/files/2026/04/20260414103718-1f137ede-91ad-6e78-9dad-b6fb0fd48d2b.png?revision=1776163666585&s=1024');"></div>
+                <h3 class="art-title">Stay Loose Shaka Cap</h3>
+                <p class="art-price">$45.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/27951795/us-heart-hands-embroidered-dad-cap" class="art-card reveal" target="_blank" rel="noopener" data-badge="NEW">
+                <div class="art-image" style="background-image: url('https://pfy-prod-products-mockup-media.s3.us-east-2.amazonaws.com/files/2026/04/20260413174116-1f1375ff-8e91-60d8-85a4-c69a5e31f45a.png?revision=1776102213233&s=1024');"></div>
+                <h3 class="art-title">Heart Hands Cap</h3>
+                <p class="art-price">$45.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/27524850/us-the-internet-is-undefeated-retro-terminal-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://pfy-prod-products-mockup-media.s3.us-east-2.amazonaws.com/files/2026/03/20260323200012-1f126f2e-72e8-6ad0-95c5-2ee04771bb22.png?revision=1774445502450&s=1024');"></div>
+                <h3 class="art-title">The Internet Is Undefeated</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/27305737/crewneck-sweatshirt-the-internet-is-undefeated-retro-terminal-graphic" class="art-card reveal" target="_blank" rel="noopener" data-badge="NEW">
+                <div class="art-image" style="background-image: url('https://pfy-prod-products-mockup-media.s3.us-east-2.amazonaws.com/files/2026/03/20260312125516-1f11e12b-7e89-6aba-b756-8673d04a6c85.png?revision=1774445584896&s=1024');"></div>
+                <h3 class="art-title">Undefeated Crewneck</h3>
+                <p class="art-price">$89.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/27266754/us-liberte-unisex-heavy-blend-embroidered-crewneck" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://pfy-prod-products-mockup-media.s3.us-east-2.amazonaws.com/files/2026/03/20260310142857-1f11c8d7-8f24-6ddc-bf70-a2ae7fd92c99.png?revision=1773155938001&s=1024');"></div>
+                <h3 class="art-title">Liberté Crewneck</h3>
+                <p class="art-price">$89.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/27266702/us-sovereign-human-being-unisex-heavy-blend-embroidered-crewneck" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://pfy-prod-products-mockup-media.s3.us-east-2.amazonaws.com/files/2026/03/20260310142507-1f11c8ce-fd03-67ee-8f25-5aaefb077d85.png?revision=1774299074387&s=1024');"></div>
+                <h3 class="art-title">Sovereign Human Crew</h3>
+                <p class="art-price">$89.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761435/us-lions-heart-crest-hoodie" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b986f5a3013446c0451e6/32912/98425/us-lions-heart-crest-hoodie.jpg?camera_label=back&revision=1771525050362&s=1024');"></div>
+                <h3 class="art-title">Lion's Heart Hoodie</h3>
+                <p class="art-price">$89.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761345/us-beware-of-the-werewolf-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b4a4b5a98e1d17a0d585d/103520/100479/us-beware-of-the-werewolf-tee.jpg?camera_label=person-2-back&revision=1771524670997&s=1024');"></div>
+                <h3 class="art-title">Beware of the Werewolf</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761330/us-bigfoot-adventure-graphic-cotton-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b992bbeff95f1d70bc2f5/103548/100479/us-bigfoot-adventure-graphic-cotton-tee.jpg?camera_label=person-2-back&revision=1771524471806&s=1024');"></div>
+                <h3 class="art-title">Bigfoot Adventure</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761325/us-jersey-devil-graphic-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b9929beff95f1d70bc2f4/103548/100479/us-jersey-devil-graphic-tee.jpg?camera_label=person-2-back&revision=1771524528821&s=1024');"></div>
+                <h3 class="art-title">Jersey Devil</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761324/us-mothman-graphic-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b9928beff95f1d70bc2f2/103548/100479/us-mothman-graphic-tee.jpg?camera_label=person-2-back&revision=1771524431321&s=1024');"></div>
+                <h3 class="art-title">Mothman Graphic Tee</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761317/us-chupacabra-graphic-cotton-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b9926beff95f1d70bc2f1/103548/100479/us-chupacabra-graphic-cotton-tee.jpg?camera_label=person-2-back&revision=1771524370334&s=1024');"></div>
+                <h3 class="art-title">Chupacabra</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761316/us-skinwalker-graphic-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b9925beff95f1d70bc2f0/103548/100479/us-skinwalker-graphic-tee.jpg?camera_label=person-2-back&revision=1771524307208&s=1024');"></div>
+                <h3 class="art-title">Skinwalker Graphic Tee</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761315/us-above-the-clouds-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b4a34bef34e60bb09e6be/103548/100479/us-above-the-clouds-tee.jpg?camera_label=person-2-back&revision=1771525449515&s=1024');"></div>
+                <h3 class="art-title">Above the Clouds</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761269/us-odin-graphic-cotton-tee" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://images-api.printify.com/mockup/698b9924beff95f1d70bc2ef/103548/100479/us-odin-graphic-cotton-tee.jpg?camera_label=person-2-back&revision=1771524207083&s=1024');"></div>
+                <h3 class="art-title">Odin Graphic Tee</h3>
+                <p class="art-price">$59.00</p>
+            </a>
+            <a href="https://shop.dreamscapesgoods.com/product/26761251/us-escapism-embroidered-dad-cap" class="art-card reveal" target="_blank" rel="noopener">
+                <div class="art-image" style="background-image: url('https://pfy-prod-products-mockup-media.s3.us-east-2.amazonaws.com/files/2026/03/20260310125525-1f11c806-85e2-6eda-8327-3a98139afb06.png?revision=1773147442921&s=1024');"></div>
+                <h3 class="art-title">Escapism Dad Cap</h3>
+                <p class="art-price">$45.00</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section style="text-align: center; padding-bottom: 150px;">
+        <h2 class="section-title" style="font-size: 1.5rem; margin-bottom: 2rem;">Browse the full collection</h2>
+        <a href="https://shop.dreamscapesgoods.com" class="btn-warp" target="_blank" rel="noopener"
+            style="padding: 25px 80px;">
+            Shop Now
+        </a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="trust-badges">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                <span>Premium Quality</span>
+            </div>
+            <div class="badge">
+                <span class="badge-dot"></span>
+                <span>Made in USA</span>
+            </div>
+            <div class="badge">
+                <span class="badge-dot"></span>
+                <span>Secure Checkout</span>
+            </div>
+        </div>
+        <p style="color: #444; font-size: 0.8rem; letter-spacing: 1px;">&copy; 2026 Dreamscapes Goods.</p>
+    </footer>
+
+    <script>
+
+        // =============================================
+        //  MAIN STARFIELD (BACKGROUND)
+        // =============================================
+        (function () {
+            const STAR_COUNT = 350;
+            const IDLE_SPEED = 0.4;
+
+            let width, height;
+            let stars = [];
+            let scrollSpeed = 0;
+            let lastScrollY = window.scrollY;
+
+            const canvas = document.getElementById('starfield-canvas');
+            const ctx = canvas.getContext('2d');
+
+            class Star {
+                constructor() {
+                    this.reset();
+                    this.z = Math.random() * width;
+                }
+                reset() {
+                    this.x = (Math.random() - 0.5) * width * 2.0;
+                    this.y = (Math.random() - 0.5) * height * 2.0;
+                    this.z = width;
+                }
+                update() {
+                    this.z -= (IDLE_SPEED + scrollSpeed * 1.2);
+                    if (this.z <= 1) this.reset();
+                }
+                draw() {
+                    const cx = width / 2, cy = height / 2;
+                    const scale = width / this.z;
+                    const x2d = this.x * scale + cx;
+                    const y2d = this.y * scale + cy;
+                    const opacity = Math.min(0.85, 1 - (this.z / width));
+                    if (this.z <= 0) return;
+
+                    if (scrollSpeed > 10) {
+                        // Subtle warp trails on fast scroll
+                        const angle = Math.atan2(y2d - cy, x2d - cx);
+                        const dist = Math.hypot(x2d - cx, y2d - cy);
+                        const lf = Math.min(0.5, scrollSpeed * 0.015);
+                        const tLen = dist * lf;
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255,255,255,${opacity * 0.8})`;
+                        ctx.lineWidth = Math.max(0.3, scale * 1.0);
+                        ctx.moveTo(x2d, y2d);
+                        ctx.lineTo(x2d - Math.cos(angle) * tLen, y2d - Math.sin(angle) * tLen);
+                        ctx.stroke();
+                    } else {
+                        // Idle dot
+                        ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                        ctx.beginPath();
+                        ctx.arc(x2d, y2d, Math.max(0.3, scale * 0.7), 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+
+            function init() {
+                resize();
+                for (let i = 0; i < STAR_COUNT; i++) stars.push(new Star());
+                requestAnimationFrame(loop);
+            }
+
+            let isVisible = true;
+
+            window.addEventListener('resize', resize);
+            window.addEventListener('scroll', () => {
+                const dy = Math.abs(window.scrollY - lastScrollY);
+                scrollSpeed = Math.min(30, scrollSpeed + dy * 0.04);
+                lastScrollY = window.scrollY;
+            });
+
+            function loop() {
+                if (isVisible) {
+                    ctx.clearRect(0, 0, width, height);
+                    scrollSpeed *= 0.95;
+                    if (scrollSpeed < 0.05) scrollSpeed = 0;
+                    for (const s of stars) { s.update(); s.draw(); }
+                }
+                requestAnimationFrame(loop);
+            }
+
+            init();
+        })();
+
+        // =============================================
+        //  INTERSECTION OBSERVER — SCROLL REVEAL
+        // =============================================
+        (function () {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, i) => {
+                    if (entry.isIntersecting) {
+                        // Stagger siblings
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, i * 80);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        })();
+
+        // =============================================
+        //  SCROLL EFFECTS (NAV, PARALLAX, INDICATOR)
+        // =============================================
+        (function () {
+            const nav = document.getElementById('site-nav');
+            const splineContainer = document.getElementById('spline-container');
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            const introBar = document.querySelector('.intro-bar');
+            
+            // Sticky Nav & Parallax
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                
+                // Sticky Nav class
+                if (scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+                
+                // Hero Parallax effect (subtle move down on scroll)
+                if (splineContainer && scrollY < window.innerHeight) {
+                    splineContainer.style.transform = `translateY(${scrollY * 0.4}px)`;
+                }
+            });
+
+            // Scroll indicator click
+            if (scrollIndicator && introBar) {
+                scrollIndicator.addEventListener('click', () => {
+                    introBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+        })();
+    </script>
+
+
+</body>
+
+</html>
